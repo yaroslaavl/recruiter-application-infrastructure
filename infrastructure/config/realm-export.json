@@ -1,0 +1,281 @@
+{
+  "realm": "recruiter-app",
+  "enabled": true,
+  "accessTokenLifespan": 300,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "roles": {
+    "realm": [
+      { "name": "ROLE_ADMIN", "description": "Administrator Role" },
+      { "name": "ROLE_MANAGER", "description": "Manager Role" },
+      { "name": "ROLE_VERIFIED_CANDIDATE", "description": "Candidate Role" },
+      { "name": "ROLE_VERIFIED_RECRUITER", "description": "Recruiter Role" },
+      { "name": "ROLE_INTERNAL_SERVICE", "description": "Internal Microservice Role" },
+      { "name": "offline_access" },
+      { "name": "uma_authorization" },
+      {
+        "name": "default-roles-recruiter-app",
+        "composite": true,
+        "composites": {
+          "realm": [ "offline_access", "uma_authorization" ]
+        }
+      }
+    ]
+  },
+  "defaultRole": {
+    "name": "default-roles-recruiter-app"
+  },
+  "clientScopes": [
+    {
+      "name": "profile",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "true" },
+      "protocolMappers": [
+        { "name": "full name", "protocol": "openid-connect", "protocolMapper": "oidc-full-name-mapper", "config": { "id.token.claim": "true", "access.token.claim": "true", "userinfo.token.claim": "true" } },
+        { "name": "given name", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": { "user.attribute": "firstName", "claim.name": "given_name", "jsonType.label": "String", "id.token.claim": "true", "access.token.claim": "true" } },
+        { "name": "family name", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": { "user.attribute": "lastName", "claim.name": "family_name", "jsonType.label": "String", "id.token.claim": "true", "access.token.claim": "true" } },
+        { "name": "username", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": { "user.attribute": "username", "claim.name": "preferred_username", "jsonType.label": "String", "id.token.claim": "true", "access.token.claim": "true" } }
+      ]
+    },
+    {
+      "name": "email",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "true" },
+      "protocolMappers": [
+        { "name": "email", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": { "user.attribute": "email", "claim.name": "email", "jsonType.label": "String", "id.token.claim": "true", "access.token.claim": "true" } },
+        { "name": "email verified", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-property-mapper", "config": { "user.attribute": "emailVerified", "claim.name": "email_verified", "jsonType.label": "boolean", "id.token.claim": "true", "access.token.claim": "true" } }
+      ]
+    },
+    {
+      "name": "roles",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "false", "display.on.consent.screen": "true" },
+      "protocolMappers": [
+        {
+          "name": "recruiter_app_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "claim.name": "recruiter_app_roles",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "realm_access_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "recruiter-app",
+      "name": "Gateway Service",
+      "rootUrl": "http://localhost:8765",
+      "adminUrl": "http://localhost:8765",
+      "enabled": true,
+      "publicClient": false,
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "aiSqyetgkPXieTL5NQpSJp3pKs3sJvcd",
+      "redirectUris": [ "http://localhost:8765/*" ],
+      "webOrigins": [ "http://localhost:8765" ],
+      "defaultClientScopes": [ "profile", "email", "roles" ],
+      "protocolMappers": [
+        {
+          "name": "admin-audience-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": { "included.client.audience": "realm-management", "access.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "clientId": "user-service",
+      "name": "User Microservice",
+      "rootUrl": "http://localhost:8080",
+      "enabled": true,
+      "publicClient": false,
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "wKQKae5vGmclECWIBD1HEkgX1QbMlKWC",
+      "redirectUris": [ "http://localhost:8080/*" ],
+      "webOrigins": [ "http://localhost:8080" ],
+      "defaultClientScopes": [ "profile", "email", "roles" ],
+      "protocolMappers": [
+        {
+          "name": "admin-audience-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": { "included.client.audience": "realm-management", "access.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "clientId": "cv-service",
+      "name": "CV Microservice",
+      "rootUrl": "http://localhost:8082",
+      "enabled": true,
+      "publicClient": false,
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "g9939CUhwZu6E2crsVoppaSJQVgAV28H",
+      "redirectUris": [ "http://localhost:8082/*" ],
+      "webOrigins": [ "http://localhost:8082" ],
+      "defaultClientScopes": [ "profile", "email", "roles" ]
+    },
+    {
+      "clientId": "recruiting-service",
+      "name": "Recruiting Microservice",
+      "rootUrl": "http://localhost:8083",
+      "enabled": true,
+      "publicClient": false,
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "eGFPZTMjw0s3JhvSFCOQFF8dt7HbQP78",
+      "redirectUris": [ "http://localhost:8083/*" ],
+      "webOrigins": [ "http://localhost:8083" ],
+      "defaultClientScopes": [ "profile", "email", "roles" ]
+    },
+    {
+      "clientId": "notification-service",
+      "name": "Notification Microservice",
+      "rootUrl": "http://localhost:8081",
+      "enabled": true,
+      "publicClient": false,
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "9b7SjbTHHkYawl4X9KwoKdLM6Gr5awx2",
+      "redirectUris": [ "http://localhost:8081/*" ],
+      "webOrigins": [ "http://localhost:8081" ],
+      "defaultClientScopes": [ "profile", "email", "roles" ]
+    },
+    {
+      "clientId": "communication-service",
+      "name": "Communication Microservice",
+      "rootUrl": "http://localhost:8084",
+      "enabled": true,
+      "publicClient": false,
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "yS5zEwEUckedLTJ0cLbhEMDDk36TGavi",
+      "redirectUris": [ "http://localhost:8084/*" ],
+      "webOrigins": [ "http://localhost:8084" ],
+      "defaultClientScopes": [ "profile", "email", "roles" ]
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-recruiter-app",
+      "enabled": true,
+      "serviceAccountClientId": "recruiter-app",
+      "realmRoles": [ "ROLE_INTERNAL_SERVICE", "default-roles-recruiter-app" ],
+      "clientRoles": { "realm-management": [ "realm-admin", "manage-users", "assign-role", "view-users", "query-users" ] }
+    },
+    {
+      "username": "service-account-user-service",
+      "enabled": true,
+      "serviceAccountClientId": "user-service",
+      "realmRoles": [ "ROLE_INTERNAL_SERVICE", "default-roles-recruiter-app" ],
+      "clientRoles": { "realm-management": [ "realm-admin", "manage-users", "assign-role" ] }
+    },
+    {
+      "username": "service-account-recruiting-service",
+      "enabled": true,
+      "serviceAccountClientId": "recruiting-service",
+      "realmRoles": [ "ROLE_INTERNAL_SERVICE", "default-roles-recruiter-app" ]
+    },
+    {
+      "username": "service-account-cv-service",
+      "enabled": true,
+      "serviceAccountClientId": "cv-service",
+      "realmRoles": [ "ROLE_INTERNAL_SERVICE", "default-roles-recruiter-app" ]
+    },
+    {
+      "username": "service-account-notification-service",
+      "enabled": true,
+      "serviceAccountClientId": "notification-service",
+      "realmRoles": [ "ROLE_INTERNAL_SERVICE", "default-roles-recruiter-app" ]
+    },
+    {
+      "username": "service-account-communication-service",
+      "enabled": true,
+      "serviceAccountClientId": "communication-service",
+      "realmRoles": [ "ROLE_INTERNAL_SERVICE", "default-roles-recruiter-app" ]
+    },
+    {
+      "id": "41c80357-f756-41af-ac1f-adff66155d17",
+      "username": "administrator@recruiter-app.com",
+      "email": "administrator@recruiter-app.com",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Administrator",
+      "lastName": "Global",
+      "credentials": [ { "type": "password", "value": "adminZUT123", "temporary": false } ],
+      "realmRoles": [ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_VERIFIED_CANDIDATE", "ROLE_VERIFIED_RECRUITER", "default-roles-recruiter-app" ]
+    },
+    {
+      "id": "d54d6962-1149-4e92-8b3f-c804d4fcd948",
+      "username": "manager@recruiter-app.com",
+      "email": "manager@recruiter-app.com",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Manager",
+      "lastName": "Testowy",
+      "credentials": [ { "type": "password", "value": "managerZUT123", "temporary": false } ],
+      "realmRoles": [ "ROLE_MANAGER", "ROLE_VERIFIED_CANDIDATE", "ROLE_VERIFIED_RECRUITER", "default-roles-recruiter-app" ]
+    }
+  ]
+}
