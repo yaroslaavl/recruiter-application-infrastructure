@@ -7,12 +7,6 @@ It includes:
 - realm configuration and import files
 - initialization SQL scripts
 
-## 📌 Infrastructure Setup
-
-To run the system correctly, create a folder named `infrastructure` at the same level as all microservices.
-
-Place all infrastructure-related files inside this folder.
-
 ## 🚀 Setup Order (Important)
 
 Follow this order to correctly start the system:
